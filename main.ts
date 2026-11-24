@@ -7,10 +7,16 @@ import { join } from "node:path";
 const TEXT = "🤗";
 
 // Gate: UTF-8 text of 1 to 8 characters, not only white space, and
-// exactly one emoji — nothing else, no words, no caption.
+// exactly one emoji — nothing else, no words, no caption. The single
+// code point must be a pictograph, so a letter or digit can never
+// slip through as the "emoji".
 if (TEXT.trim().length === 0) throw new Error("entry must not be blank");
-if ([...TEXT].length < 1 || [...TEXT].length > 8) {
-  throw new Error(`expected 1-8 characters, got ${[...TEXT].length}`);
+const points = [...TEXT];
+if (points.length !== 1) {
+  throw new Error(`expected exactly one emoji, got ${points.length} characters`);
+}
+if (!/\p{Extended_Pictographic}/u.test(TEXT)) {
+  throw new Error("entry must be a single emoji");
 }
 
 const outDir = process.env.MAKEFUN_OUTPUT_DIR ?? "/output";
